@@ -23,8 +23,9 @@ namespace Server
             // Dns.GetHostName returns the name of the   
             // host running the application.  
             IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
-            IPAddress ipAddress = ipHostInfo.AddressList[0];
+            IPAddress ipAddress = ipHostInfo.AddressList[3];
             IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 11000);
+            Console.WriteLine(ipAddress);
 
             // Create a TCP/IP socket.  
             Socket listener = new Socket(ipAddress.AddressFamily,

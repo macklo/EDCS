@@ -4,31 +4,64 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net.Sockets;
+using System.Net;
+using System.Threading;
+using System.Windows.Forms;
 
 namespace MessageSystem
 {
-    class SimpleServer
+    public class SimpleServer
     {
-        Server server;
-        ClientInfo client;
-        void Start()
-        {
-            server = new Server(2345, new ClientEvent(ClientConnect));
+        public string data = "";
+        Socket listener;
+
+        public void Start() { 
+            IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
+            IPAddress ipAddress = ipHostInfo.AddressList[3];
+            IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 11000);
+            Console.WriteLine(ipAddress);
+
+            listener = new Socket(ipAddress.AddressFamily,
+                SocketType.Stream, ProtocolType.Tcp);
+
+            try {
+                listener.Bind(localEndPoint);
+                listener.Listen(10);
+
+            }
+            catch (Exception e) {
+                Console.WriteLine(e.ToString());
+            }
+            Console.WriteLine("Server started");
         }
 
-        bool ClientConnect(Server serv, ClientInfo new_client)
+        public void Listen()
         {
-            new_client.Delimiter = '\n';
-            new_client.OnRead += new ConnectionRead(ReadData);
-            return true; // allow this connection
-        }
+            byte[] bytes = new Byte[1024];
+            while (true)
+            {
+                Console.WriteLine("Waiting for a connection...");
+                Socket handler = listener.Accept();
+                data = "";
 
-        void ReadData(ClientInfo ci, String text)
-        {
-            Console.WriteLine("Received from " + ci.ID + ": " + text);
-            if (text[0] == '!')
-                server.Broadcast(Encoding.UTF8.GetBytes(text));
-            else ci.Send(text);
+                while (true)
+                {
+                    int bytesRec = handler.Receive(bytes);
+                    data += Encoding.ASCII.GetString(bytes, 0, bytesRec);
+                    if (data.IndexOf("<EOF>") > -1)
+                    {
+                        break;
+                    }
+                }
+
+                Console.WriteLine("Text received : {0}", data);
+
+                byte[] msg = Encoding.ASCII.GetBytes(data);
+
+                handler.Send(msg);
+                handler.Shutdown(SocketShutdown.Both);
+                handler.Close();
+            }
         }
     }
 }

@@ -19,9 +19,10 @@ public class SynchronousSocketClient
         {
             // Establish the remote endpoint for the socket.  
             // This example uses port 11000 on the local computer.  
-            IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
+            IPHostEntry ipHostInfo = Dns.GetHostEntry("79.184.118.217");
             IPAddress ipAddress = ipHostInfo.AddressList[0];
             IPEndPoint remoteEP = new IPEndPoint(ipAddress, 11000);
+
 
             // Create a TCP/IP  socket.  
             Socket sender = new Socket(ipAddress.AddressFamily,
@@ -36,7 +37,7 @@ public class SynchronousSocketClient
                     sender.RemoteEndPoint.ToString());
 
                 // Encode the data string into a byte array.  
-                byte[] msg = Encoding.ASCII.GetBytes("This is a test<EOF>");
+                byte[] msg = Encoding.ASCII.GetBytes("LOCAL<EOF>");
 
                 // Send the data through the socket.  
                 int bytesSent = sender.Send(msg);
