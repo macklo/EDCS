@@ -10,15 +10,19 @@ namespace MessageSystem
 {
     public class Client
     {
+        //public string message = "local<EOF>";
+        public long ipAddressNumber = 0;
 
-        public void StartClient()
+        public void sendMessage(string message)
         {
             byte[] bytes = new byte[1024];
 
             try
             {
-                IPHostEntry ipHostInfo = Dns.GetHostEntry("79.184.176.92");
-                IPAddress ipAddress = ipHostInfo.AddressList[0];
+                IPHostEntry tmp = Dns.GetHostByName(Dns.GetHostName());
+                IPHostEntry ipHostInfo = Dns.GetHostByName(Dns.GetHostName());
+                IPAddress ipAddress = ipHostInfo.AddressList[1];
+                this.ipAddressNumber = ipAddress.Address;
                 IPEndPoint remoteEP = new IPEndPoint(ipAddress, 11000);
 
                 Socket sender = new Socket(ipAddress.AddressFamily,
@@ -31,7 +35,7 @@ namespace MessageSystem
                     Console.WriteLine("Socket connected to {0}",
                         sender.RemoteEndPoint.ToString());
 
-                    byte[] msg = Encoding.ASCII.GetBytes("LOCAL<EOF>");
+                    byte[] msg = Encoding.ASCII.GetBytes(message);
 
                     int bytesSent = sender.Send(msg);
   

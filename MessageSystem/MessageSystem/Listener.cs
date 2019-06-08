@@ -10,16 +10,20 @@ using System.Windows.Forms;
 
 namespace MessageSystem
 {
-    public class SimpleServer
+    public class Listener
     {
         public string data = "";
         Socket listener;
+        MainWindow mainWindow;
+        public string ipAddress;
 
-        public void Start() { 
+        public void Start(MainWindow mainWindow) {
+            this.mainWindow = mainWindow;
             IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
             IPAddress ipAddress = ipHostInfo.AddressList[3];
             IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 11000);
             Console.WriteLine(ipAddress);
+            this.ipAddress = ipAddress.ToString();
 
             listener = new Socket(ipAddress.AddressFamily,
                 SocketType.Stream, ProtocolType.Tcp);
@@ -55,6 +59,7 @@ namespace MessageSystem
                 }
 
                 Console.WriteLine("Text received : {0}", data);
+                mainWindow.addToChat(data);
 
                 byte[] msg = Encoding.ASCII.GetBytes(data);
 
