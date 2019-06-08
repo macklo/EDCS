@@ -54,9 +54,10 @@ namespace MessageSystem
 
         private void sendMessageButton_Click(object sender, EventArgs e)
         {
-            Message msg = new Message(messageTextBox.Text, contacts.ElementAt(userListBox.SelectedIndex).ipAddress, ipAddress, alertCheckBox.Checked);
+            string receiverIpAddress = contacts.ElementAt(userListBox.SelectedIndex).ipAddress;
+            Message msg = new Message(messageTextBox.Text, receiverIpAddress, ipAddress, alertCheckBox.Checked);
             string message = msg.getJsonString();
-            Thread t1 = new Thread(() => client.sendMessage(message + "<EOF>"));
+            Thread t1 = new Thread(() => client.sendMessage(message + "<EOF>", receiverIpAddress));
             t1.Start();
             addToChat(message);
         }

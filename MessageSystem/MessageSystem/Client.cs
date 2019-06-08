@@ -13,17 +13,20 @@ namespace MessageSystem
         //public string message = "local<EOF>";
         public long ipAddressNumber = 0;
 
-        public void sendMessage(string message)
+        public void sendMessage(string message, string receiverIpAddress)
         {
             byte[] bytes = new byte[1024];
 
             try
             {
-                IPHostEntry tmp = Dns.GetHostByName(Dns.GetHostName());
+                
                 IPHostEntry ipHostInfo = Dns.GetHostByName(Dns.GetHostName());
                 IPAddress ipAddress = ipHostInfo.AddressList[1];
                 this.ipAddressNumber = ipAddress.Address;
-                IPEndPoint remoteEP = new IPEndPoint(ipAddress, 11000);
+
+                IPHostEntry tmp = Dns.GetHostByName(receiverIpAddress);
+                IPAddress receiverIPAdress = tmp.AddressList[0];
+                IPEndPoint remoteEP = new IPEndPoint(receiverIPAdress, 11000);
 
                 Socket sender = new Socket(ipAddress.AddressFamily,
                     SocketType.Stream, ProtocolType.Tcp);
