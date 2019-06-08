@@ -10,19 +10,19 @@ using System.IO;
 namespace MessageSystem
 {
     [DataContract]
-    class Message
+    public class Message
     {
         [DataMember]
-        string message;
+        public string message { get; set; }
 
         [DataMember]
-        string receiverAddress;
+        public string receiverAddress { get; set; }
 
         [DataMember]
-        string senderAddress;
+        public string senderAddress { get; set; }
 
         [DataMember]
-        bool isAlert;
+        public bool isAlert { get; set; }
 
         public Message(string message, string receiverAddress, string senderAddress, bool isAlert)
         {

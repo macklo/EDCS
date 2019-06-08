@@ -7,6 +7,8 @@ using System.Net.Sockets;
 using System.Net;
 using System.Threading;
 using System.Windows.Forms;
+using System.IO;
+using System.Runtime.Serialization.Json;
 
 namespace MessageSystem
 {
@@ -58,8 +60,15 @@ namespace MessageSystem
                     }
                 }
 
+                data = data.Substring(0, data.IndexOf("<EOF>"));
+
+                MemoryStream ms = new MemoryStream(Encoding.ASCII.GetBytes(data));
+                DataContractJsonSerializer ds = new DataContractJsonSerializer(typeof(Message));
+
+                Message msgObject = ds.ReadObject(ms) as Message;
+
                 Console.WriteLine("Text received : {0}", data);
-                mainWindow.addToChat(data);
+                mainWindow.addMessage(msgObject);
 
                 byte[] msg = Encoding.ASCII.GetBytes(data);
 

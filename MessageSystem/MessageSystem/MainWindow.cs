@@ -59,7 +59,7 @@ namespace MessageSystem
             string message = msg.getJsonString();
             Thread t1 = new Thread(() => client.sendMessage(message + "<EOF>", receiverIpAddress));
             t1.Start();
-            addToChat(message);
+            addToChat("You: " + messageTextBox.Text);
         }
 
         private void messageTextBox_TextChanged(object sender, EventArgs e)
@@ -128,7 +128,30 @@ namespace MessageSystem
                 this.Invoke(d, new object[] { message });
             } else
             {
-                chatTextBox.AppendText(message + "\n");
+                currentContact.messages = currentContact.messages + message + "\n";
+                chatTextBox.Text = currentContact.messages;
+            }
+        }
+
+        delegate void addMessageCallback(Message message);
+
+        public void addMessage(Message message)
+        {
+            if (this.chatTextBox.InvokeRequired)
+            {
+                addMessageCallback d = new addMessageCallback(addMessage);
+                this.Invoke(d, new object[] { message });
+            }
+            else
+            {
+                string senderIpAddress = message.senderAddress;
+                IEnumerable<Contact> query = contacts.Where(s => s.name == "Maciek");
+                Contact user = contacts.Where(s => s.ipAddress.CompareTo(senderIpAddress) == 0).ToList().ElementAt(0);
+                user.messages += user.name + ": " + message.message + "\n";
+                if (user == currentContact)
+                {
+                    chatTextBox.Text = currentContact.messages;
+                }
             }
         }
     }
