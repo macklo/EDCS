@@ -19,11 +19,17 @@ namespace MessageSystem
 
         public string messages;
 
+        public bool isConnected;
+
+        public bool tested;
+
         public Contact (string name, string ipAddress)
         {
             this.ipAddress = ipAddress;
             this.name = name;
             this.messages = "";
+            isConnected = false;
+            tested = false;
         }
     }
 }

@@ -24,12 +24,16 @@ namespace MessageSystem
         [DataMember]
         public bool isAlert { get; set; }
 
-        public Message(string message, string receiverAddress, string senderAddress, bool isAlert)
+        [DataMember]
+        public bool areYouAlive;
+
+        public Message(string message, string receiverAddress, string senderAddress, bool isAlert, bool areYouAlive = false)
         {
             this.message = message;
             this.receiverAddress = receiverAddress;
             this.senderAddress = senderAddress;
             this.isAlert = isAlert;
+            this.areYouAlive = areYouAlive;
         }
 
         public string getJsonString()

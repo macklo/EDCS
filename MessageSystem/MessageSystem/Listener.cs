@@ -66,13 +66,18 @@ namespace MessageSystem
                 DataContractJsonSerializer ds = new DataContractJsonSerializer(typeof(Message));
 
                 Message msgObject = ds.ReadObject(ms) as Message;
+                if (msgObject.areYouAlive)
+                {
+                    Message returnMessage = new Message("", msgObject.senderAddress, ipAddress, false, true);
+                    handler.Send(Encoding.ASCII.GetBytes(returnMessage.getJsonString()));
+                }
 
                 Console.WriteLine("Text received : {0}", data);
                 mainWindow.addMessage(msgObject);
 
                 byte[] msg = Encoding.ASCII.GetBytes(data);
 
-                handler.Send(msg);
+                //handler.Send(msg);
                 handler.Shutdown(SocketShutdown.Both);
                 handler.Close();
             }
