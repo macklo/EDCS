@@ -105,9 +105,12 @@ namespace MessageSystem
             {
                 sendMessageButton.Enabled = true;
             }
-            if (currentContact.name.IndexOf("<EOF>") > -1)
+            if (currentContact.name.IndexOf("<!>") > -1)
             {
-                currentContact.name = currentContact.name.Substring(0, currentContact.name.Length - 5);
+                int idx = userListBox.SelectedIndex;
+                currentContact.name = currentContact.name.Substring(0, currentContact.name.Length - 3);
+                userListBox.DataSource = contacts.Select(s => s.name).ToList();
+                userListBox.SelectedIndex = idx;
             }
         }
 
@@ -209,9 +212,11 @@ namespace MessageSystem
                             chatTextBox.SelectionColor = Color.Red;
                             chatTextBox.Select(0, 0);
                         }
-                    } else
+                    } else if (message.isAlert)
                     {
-                        user.name += "<!>";
+                        int idx = contacts.IndexOf(user);
+                        /*user.name += "<!>";
+                        userListBox.DataSource = contacts.Select(s => s.name).ToList();*/
                     }
                 }
             }

@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.startServerButton = new System.Windows.Forms.Button();
             this.sendMessageButton = new System.Windows.Forms.Button();
             this.chatTextBox = new System.Windows.Forms.RichTextBox();
             this.messageTextBox = new System.Windows.Forms.RichTextBox();
@@ -40,16 +39,6 @@
             this.alertCheckBox = new System.Windows.Forms.CheckBox();
             this.checkConnectionButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
-            // 
-            // startServerButton
-            // 
-            this.startServerButton.Location = new System.Drawing.Point(12, 415);
-            this.startServerButton.Name = "startServerButton";
-            this.startServerButton.Size = new System.Drawing.Size(75, 23);
-            this.startServerButton.TabIndex = 0;
-            this.startServerButton.Text = "Start Server";
-            this.startServerButton.UseVisualStyleBackColor = true;
-            this.startServerButton.Click += new System.EventHandler(this.button1_Click);
             // 
             // sendMessageButton
             // 
@@ -72,9 +61,9 @@
             // 
             // messageTextBox
             // 
-            this.messageTextBox.Location = new System.Drawing.Point(93, 415);
+            this.messageTextBox.Location = new System.Drawing.Point(12, 415);
             this.messageTextBox.Name = "messageTextBox";
-            this.messageTextBox.Size = new System.Drawing.Size(432, 23);
+            this.messageTextBox.Size = new System.Drawing.Size(513, 23);
             this.messageTextBox.TabIndex = 4;
             this.messageTextBox.Text = "";
             this.messageTextBox.TextChanged += new System.EventHandler(this.messageTextBox_TextChanged);
@@ -165,7 +154,6 @@
             this.Controls.Add(this.messageTextBox);
             this.Controls.Add(this.chatTextBox);
             this.Controls.Add(this.sendMessageButton);
-            this.Controls.Add(this.startServerButton);
             this.Name = "MainWindow";
             this.Text = "MessageSystem";
             this.Load += new System.EventHandler(this.MainWindow_Load);
@@ -175,8 +163,6 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.Button startServerButton;
         private System.Windows.Forms.Button sendMessageButton;
         private System.Windows.Forms.RichTextBox chatTextBox;
         private System.Windows.Forms.RichTextBox messageTextBox;
