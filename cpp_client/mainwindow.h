@@ -28,14 +28,16 @@ public:
     ~MainWindow();
 
 
-private slots:
+public slots:
     void connectionPanelPopUp();
     bool connectToUser(int idx);
     void checkConnectionsSlot();
     void sendMessage();
     void updateMsgWindow(QString ip);
+    void onNewConnection();
 
 private:
+    QTcpServer *server_;
     Ui::MainWindow *ui;
     IpAndPort *ipWindow;
     QJsonArray contacts;

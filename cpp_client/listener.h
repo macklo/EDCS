@@ -26,7 +26,7 @@ signals:
     void msgMapChangeListener(QString ip);
 
 private:
-    static const uint socket_no = 1100;
+    static const uint socket_no = 11000;
 
     QWidget *parent_;
     QTcpServer *server_;
@@ -35,6 +35,7 @@ private:
     QMutex *msgMapMutex_;
     QHostAddress myIp_;
     QJsonArray contacts_;
+    static const QString globalIp;
 
 
     void pushMsg(const QJsonObject &jobj);

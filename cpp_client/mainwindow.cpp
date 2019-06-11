@@ -29,7 +29,7 @@ MainWindow::MainWindow(QWidget *parent) :
             break;
         }
     }
-    port =1100;
+    port =11000;
 
     sender = new Sender(QHostAddress(myIp),&msgMap_, &msgMapMutex_);
     connect(sender, SIGNAL(msgMapChangeSignal(QString)), this, SLOT (updateMsgWindow(QString)));
@@ -38,9 +38,25 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(timer, SIGNAL(timeout()), this, SLOT(checkConnectionsSlot()));
     timer->start(10000);
 
-    listener = new Listener(&msgMap_, &msgMapMutex_, myIp, contacts);
+    server_ = new QTcpServer();
+
+    connect(server_, SIGNAL(newConnection()), this, SLOT(onNewConnection()));
+    bool res  = server_->listen(QHostAddress::Any, 11000);
+    if(!res){
+        std::cout<<"dupa"<<std::endl;
+    }
+    /*listener = new Listener(&msgMap_, &msgMapMutex_, myIp, contacts);
     connect(listener, SIGNAL(msgMapChangeListener(QString)), this, SLOT (updateMsgWindow(QString)));
-    listener->start();
+    listener->start();*/
+}
+
+void MainWindow::onNewConnection()
+{
+    QTcpSocket *clientSocket = server_->nextPendingConnection();
+    connect(clientSocket, SIGNAL(readyRead()), this, SLOT(onReadyRead()));
+    connect(clientSocket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(onSocketStateChanged(QAbstractSocket::SocketState)));
+    std::cout<<"lol"<<std::endl;
+    //sockets_.push_back(clientSocket);
 }
 
 
@@ -122,6 +138,8 @@ void MainWindow::connectionPanelPopUp(){
 }
 
 bool MainWindow::connectToUser(int idx){
+    std::cout<<server_->isListening()<<std::endl;
+
     QHostAddress ip(contacts.at(idx).toObject().value("ipAddress").toString());
     //WaitForConnnection *wcw = new WaitForConnnection();
     //wcw->show();

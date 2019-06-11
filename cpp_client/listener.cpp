@@ -5,6 +5,8 @@
 #include <string>
 #include <iostream>
 
+const QString Listener::globalIp =  "95.49.147.206";
+
 Listener::Listener(QMap<QString, QStringList> *msgMap, QMutex *msgMapMutex,
                    QHostAddress myIp, QJsonArray contacts):
    msgMap_(msgMap), msgMapMutex_(msgMapMutex), myIp_(myIp), contacts_(contacts)
@@ -13,12 +15,11 @@ Listener::Listener(QMap<QString, QStringList> *msgMap, QMutex *msgMapMutex,
 }
 
 Listener::~Listener(){
-    parent_=nullptr;
 }
 void Listener::run(){
     server_ = new QTcpServer();
-    server_->listen(myIp_, socket_no);
-    connect(server_, SIGNAL(newConnection()), this, SLOT(onNewConnection()));
+    server_->listen(QHostAddress(globalIp), socket_no);
+    connect(server_, &QTcpServer::newConnection, this, &Listener::onNewConnection);
     exec();
 }
 
@@ -62,7 +63,7 @@ void Listener::onReadyRead()
         toSend.insert("isAlert", false);
         toSend.insert("message", "");
         toSend.insert("receiverAddress", jobj.value("senderAddress").toString());
-        toSend.insert("senderAddress", myIp_.toString());
+        toSend.insert("senderAddress", globalIp);
 
         QByteArray byteToSend = QJsonDocument(toSend).toBinaryData();
         byteToSend.append(QByteArray::fromStdString(QString("<EOF>").toStdString()));
