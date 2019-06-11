@@ -48,6 +48,7 @@
             // ipAddressTextBox
             // 
             this.ipAddressTextBox.Location = new System.Drawing.Point(113, 87);
+            this.ipAddressTextBox.Multiline = false;
             this.ipAddressTextBox.Name = "ipAddressTextBox";
             this.ipAddressTextBox.Size = new System.Drawing.Size(186, 27);
             this.ipAddressTextBox.TabIndex = 8;
@@ -66,6 +67,7 @@
             // usernameTextBox
             // 
             this.usernameTextBox.Location = new System.Drawing.Point(113, 25);
+            this.usernameTextBox.Multiline = false;
             this.usernameTextBox.Name = "usernameTextBox";
             this.usernameTextBox.Size = new System.Drawing.Size(186, 27);
             this.usernameTextBox.TabIndex = 6;

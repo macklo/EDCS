@@ -38,6 +38,7 @@
             this.exportUsersButton = new System.Windows.Forms.Button();
             this.importUsersButton = new System.Windows.Forms.Button();
             this.alertCheckBox = new System.Windows.Forms.CheckBox();
+            this.checkConnectionButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // startServerButton
@@ -77,6 +78,8 @@
             this.messageTextBox.TabIndex = 4;
             this.messageTextBox.Text = "";
             this.messageTextBox.TextChanged += new System.EventHandler(this.messageTextBox_TextChanged);
+            this.messageTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.messageTextBox_KeyDown);
+            this.messageTextBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.messageTextBox_KeyPress);
             // 
             // userListBox
             // 
@@ -99,7 +102,7 @@
             // 
             // deleteUserButton
             // 
-            this.deleteUserButton.Location = new System.Drawing.Point(671, 58);
+            this.deleteUserButton.Location = new System.Drawing.Point(671, 41);
             this.deleteUserButton.Name = "deleteUserButton";
             this.deleteUserButton.Size = new System.Drawing.Size(75, 23);
             this.deleteUserButton.TabIndex = 7;
@@ -109,7 +112,7 @@
             // 
             // exportUsersButton
             // 
-            this.exportUsersButton.Location = new System.Drawing.Point(671, 111);
+            this.exportUsersButton.Location = new System.Drawing.Point(671, 182);
             this.exportUsersButton.Name = "exportUsersButton";
             this.exportUsersButton.Size = new System.Drawing.Size(75, 23);
             this.exportUsersButton.TabIndex = 8;
@@ -119,7 +122,7 @@
             // 
             // importUsersButton
             // 
-            this.importUsersButton.Location = new System.Drawing.Point(671, 172);
+            this.importUsersButton.Location = new System.Drawing.Point(671, 211);
             this.importUsersButton.Name = "importUsersButton";
             this.importUsersButton.Size = new System.Drawing.Size(75, 23);
             this.importUsersButton.TabIndex = 9;
@@ -137,11 +140,22 @@
             this.alertCheckBox.Text = "Alert Message";
             this.alertCheckBox.UseVisualStyleBackColor = true;
             // 
+            // checkConnectionButton
+            // 
+            this.checkConnectionButton.Location = new System.Drawing.Point(671, 98);
+            this.checkConnectionButton.Name = "checkConnectionButton";
+            this.checkConnectionButton.Size = new System.Drawing.Size(75, 40);
+            this.checkConnectionButton.TabIndex = 11;
+            this.checkConnectionButton.Text = "Check Connection";
+            this.checkConnectionButton.UseVisualStyleBackColor = true;
+            this.checkConnectionButton.Click += new System.EventHandler(this.checkConnectionButton_Click);
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.checkConnectionButton);
             this.Controls.Add(this.alertCheckBox);
             this.Controls.Add(this.importUsersButton);
             this.Controls.Add(this.exportUsersButton);
@@ -172,6 +186,7 @@
         private System.Windows.Forms.Button exportUsersButton;
         private System.Windows.Forms.Button importUsersButton;
         private System.Windows.Forms.CheckBox alertCheckBox;
+        private System.Windows.Forms.Button checkConnectionButton;
     }
 }
 

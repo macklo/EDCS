@@ -49,17 +49,18 @@ namespace MessageSystem
                 Console.WriteLine("Waiting for a connection...");
                 Socket handler = listener.Accept();
                 data = "";
-
-                while (true)
+                int bytesRec = handler.Receive(bytes);
+                data += Encoding.ASCII.GetString(bytes, 0, bytesRec);
+                /*
+                while (bytesRec != 0)
                 {
-                    int bytesRec = handler.Receive(bytes);
-                    data += Encoding.ASCII.GetString(bytes, 0, bytesRec);
+                    
                     if (data.IndexOf("<EOF>") > -1)
                     {
                         break;
                     }
                 }
-
+            */
                 data = data.Substring(0, data.IndexOf("<EOF>"));
 
                 MemoryStream ms = new MemoryStream(Encoding.ASCII.GetBytes(data));

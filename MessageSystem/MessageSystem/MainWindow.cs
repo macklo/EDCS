@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Media;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading;
@@ -26,9 +28,11 @@ namespace MessageSystem
             listener = new Listener();
             client = new Client(this);
             contacts = new List<Contact>();
+            importContacts("contacts.txt");
 
             listener.Start(this);
             Thread t = new Thread(listener.Listen);
+            t.IsBackground = true;
             t.Start();
 
             this.ipAddress = listener.ipAddress;
@@ -55,20 +59,24 @@ namespace MessageSystem
 
         private void sendMessageButton_Click(object sender, EventArgs e)
         {
-            if (currentContact.isConnected)
+            if (currentContact.isConnected && messageTextBox.Text != "")
             {
                 string receiverIpAddress = contacts.ElementAt(userListBox.SelectedIndex).ipAddress;
                 Message msg = new Message(messageTextBox.Text, receiverIpAddress, ipAddress, alertCheckBox.Checked);
                 string message = msg.getJsonString();
                 Thread t1 = new Thread(() => client.sendMessage(message + "<EOF>", receiverIpAddress));
                 t1.Start();
-                addToChat("You: " + messageTextBox.Text);
+                addToChat("You" + (msg.isAlert ? "<!>" : "") + ": " + messageTextBox.Text);
+                messageTextBox.Text = "";
             }
         }
 
         private void messageTextBox_TextChanged(object sender, EventArgs e)
         {
-            //client.message = messageTextBox.Text + "<EOF>";
+            if(messageTextBox.Text != "" && messageTextBox.Text.ElementAt(0) == '\n')
+            {
+                messageTextBox.Text = messageTextBox.Text.Substring(1);
+            }
         }
 
         private void chatTextBox_TextChanged(object sender, EventArgs e)
@@ -97,6 +105,10 @@ namespace MessageSystem
             {
                 sendMessageButton.Enabled = true;
             }
+            if (currentContact.name.IndexOf("<EOF>") > -1)
+            {
+                currentContact.name = currentContact.name.Substring(0, currentContact.name.Length - 5);
+            }
         }
 
         private void addUserButton_Click(object sender, EventArgs e)
@@ -114,7 +126,7 @@ namespace MessageSystem
 
         private void exportUsersButton_Click(object sender, EventArgs e)
         {
-            FileStream fs = File.Create("./contacts.txt");
+            FileStream fs = File.OpenWrite("./contacts.txt");
 
             DataContractJsonSerializer ds = new DataContractJsonSerializer(typeof(List<Contact>));
             ds.WriteObject(fs, contacts);
@@ -137,6 +149,18 @@ namespace MessageSystem
             }
                 
         }
+
+        private void importContacts(string filename)
+        {
+            FileStream fs = File.OpenRead(filename);
+            DataContractJsonSerializer ds = new DataContractJsonSerializer(typeof(List<Contact>));
+            contacts = ds.ReadObject(fs) as List<Contact>;
+
+            userListBox.DataSource = contacts.Select(s => s.name).ToList();
+            fs.Close();
+        }
+
+
         delegate void addToChatCallback(string text);
 
         public void addToChat(string message)
@@ -167,11 +191,27 @@ namespace MessageSystem
                 {
                     string senderIpAddress = message.senderAddress;
                     Contact user = contacts.Where(s => s.ipAddress.CompareTo(senderIpAddress) == 0).ToList().ElementAt(0);
-                    string label = showUser ? user.name + ": " : "";
+                    string label = showUser ? (user.name + (message.isAlert ? "<!>" : "")) + ": " : "";
                     user.messages += label + message.message + "\n";
+                    
+                    if(message.isAlert)
+                    {
+                        SystemSounds.Hand.Play();
+                    }
+
                     if (user == currentContact)
                     {
                         chatTextBox.Text = currentContact.messages;
+                        if (message.isAlert)
+                        {
+                            Console.WriteLine(chatTextBox.Text.Length + " " + message.message.Length);
+                            chatTextBox.Select(chatTextBox.Text.Length - message.message.Length - 1, message.message.Length);
+                            chatTextBox.SelectionColor = Color.Red;
+                            chatTextBox.Select(0, 0);
+                        }
+                    } else
+                    {
+                        user.name += "<!>";
                     }
                 }
             }
@@ -204,6 +244,44 @@ namespace MessageSystem
             user.isConnected = true;
 
             addLocalMessage("Connected", senderIpAddress);
+            if (user == currentContact)
+            {
+                enableSendMessageButton();
+            }
+        }
+
+        delegate void enableSendMessageButtonCallback();
+
+        public void enableSendMessageButton()
+        {
+            if (this.sendMessageButton.InvokeRequired)
+            {
+                enableSendMessageButtonCallback d = new enableSendMessageButtonCallback(enableSendMessageButton);
+                this.Invoke(d, new object[] {  });
+            }
+            else
+            {
+                sendMessageButton.Enabled = true;
+            }
+        }
+
+        private void checkConnectionButton_Click(object sender, EventArgs e)
+        {
+            sendTestMessage(currentContact.ipAddress);
+        }
+
+        private void messageTextBox_KeyPress(object sender, KeyPressEventArgs e)
+        {
+
+            
+        }
+
+        private void messageTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                this.sendMessageButton_Click(this, new EventArgs());
+            }
         }
     }
 }
