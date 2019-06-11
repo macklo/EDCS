@@ -62,7 +62,7 @@ namespace MessageSystem
                     }
                 }
             */
-                data = data.Substring(0, data.IndexOf("<EOF>"));
+                //data = data.Substring(0, data.IndexOf("<EOF>"));
 
                 MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(data));
                 DataContractJsonSerializer ds = new DataContractJsonSerializer(typeof(Message));

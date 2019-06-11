@@ -64,7 +64,7 @@ namespace MessageSystem
                 string receiverIpAddress = contacts.ElementAt(userListBox.SelectedIndex).ipAddress;
                 Message msg = new Message(messageTextBox.Text, receiverIpAddress, ipAddress, alertCheckBox.Checked);
                 string message = msg.getJsonString();
-                Thread t1 = new Thread(() => client.sendMessage(message + "<EOF>", receiverIpAddress));
+                Thread t1 = new Thread(() => client.sendMessage(message, receiverIpAddress));
                 t1.Start();
                 addToChat("You" + (msg.isAlert ? "<!>" : "") + ": " + messageTextBox.Text);
                 messageTextBox.Text = "";
@@ -235,7 +235,7 @@ namespace MessageSystem
             addLocalMessage("Trying to connect", receiverIpAddress);
             Message msg = new Message("", receiverIpAddress, ipAddress, false, true);
             string message = msg.getJsonString();
-            Thread t1 = new Thread(() => client.sendMessage(message + "<EOF>", receiverIpAddress, true));
+            Thread t1 = new Thread(() => client.sendMessage(message, receiverIpAddress, true));
             t1.Start();
         }
 
