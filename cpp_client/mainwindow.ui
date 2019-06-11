@@ -71,13 +71,6 @@
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QPushButton" name="pushButton_2">
-       <property name="text">
-        <string>Send alert msg to...</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QPushButton" name="pushButton_3">
        <property name="text">
         <string>Check if X is connected</string>
@@ -99,8 +92,21 @@
       <x>700</x>
       <y>60</y>
       <width>201</width>
-      <height>471</height>
+      <height>431</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBox">
+    <property name="geometry">
+     <rect>
+      <x>700</x>
+      <y>500</y>
+      <width>201</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Alert</string>
     </property>
    </widget>
   </widget>

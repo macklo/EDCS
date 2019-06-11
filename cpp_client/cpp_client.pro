@@ -27,12 +27,19 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    ipandport.cpp
+    ipandport.cpp \
+    waitforconnnection.cpp \
+    listener.cpp \
+    sender.cpp
 
 HEADERS += \
         mainwindow.h \
-    ipandport.h
+    ipandport.h \
+    waitforconnnection.h \
+    listener.h \
+    sender.h
 
 FORMS += \
         mainwindow.ui \
-    ipandport.ui
+    ipandport.ui \
+    waitforconnnection.ui

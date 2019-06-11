@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <QJsonValue>
+#include <QVariantMap>
 
 IpAndPort::IpAndPort(QWidget *parent) :
     QWidget(parent),
@@ -21,18 +22,23 @@ IpAndPort::IpAndPort(const QJsonArray contacts,  QWidget *parent):
     QWidget(parent),
     ui(new Ui::IpAndPort)
 {
-    for(int i=0; i<contacts.size();++i){
-        QJsonObject v = contacts[i].toObject();
-        bool b = v.contains("name");
-        const QJsonValue v1 = v.value(QString("name"));
-        //std::cout<<v.toStdString()<<std::endl;
-                //[0].toObject()["name"];
-        //auto k = v.isObject();
-
-    }
    std::for_each(contacts.begin(), contacts.end(), [&](const auto &v){
-       auto a = v.toObject().value("name").toString();
-       ui->listWidget->addItem(a);
+       labels.append(v.toObject().value("name").toString());
    });
-
+   ui->setupUi(this);
+   ui->listWidget->addItems(labels);
+   connect(ui->pushButton, SIGNAL (released()), this, SLOT (close()));
+   connect(ui->listWidget, SIGNAL (itemDoubleClicked(QListWidgetItem*)), this,
+           SLOT (itemChosen(QListWidgetItem *)));
 }
+
+void IpAndPort::itemChosen(QListWidgetItem *item){
+    int idx;
+    for(int i = 0; i<labels.size();++i){
+        if(labels[i]==item->text())
+            idx = i;
+    }
+    emit userChosen(idx);
+    close();
+}
+
