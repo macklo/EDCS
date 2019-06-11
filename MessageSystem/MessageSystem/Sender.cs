@@ -8,13 +8,11 @@ using System.Threading.Tasks;
 
 namespace MessageSystem
 {
-    public class Client
+    public class Sender
     {
-        //public string message = "local<EOF>";
-        public long ipAddressNumber = 0;
         MainWindow mainWindow;
 
-        public Client(MainWindow mainWindow)
+        public Sender(MainWindow mainWindow)
         {
             this.mainWindow = mainWindow;
         }
@@ -25,10 +23,8 @@ namespace MessageSystem
 
             try
             {
-                
                 IPHostEntry ipHostInfo = Dns.GetHostByName(Dns.GetHostName());
                 IPAddress ipAddress = ipHostInfo.AddressList[1];
-                this.ipAddressNumber = ipAddress.Address;
 
                 IPHostEntry tmp = Dns.GetHostByName(receiverIpAddress);
                 IPAddress receiverIPAdress = tmp.AddressList[0];
@@ -55,10 +51,8 @@ namespace MessageSystem
                             Encoding.ASCII.GetString(bytes, 0, bytesRec));
                         mainWindow.recievedTestMessage(Encoding.ASCII.GetString(bytes, 0, bytesRec));
                     }
-
                     sender.Shutdown(SocketShutdown.Both);
                     sender.Close();
-
                 }
                 catch (ArgumentNullException ane)
                 {

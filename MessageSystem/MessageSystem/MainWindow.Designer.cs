@@ -54,6 +54,7 @@
             // 
             this.chatTextBox.Location = new System.Drawing.Point(12, 12);
             this.chatTextBox.Name = "chatTextBox";
+            this.chatTextBox.ReadOnly = true;
             this.chatTextBox.Size = new System.Drawing.Size(402, 394);
             this.chatTextBox.TabIndex = 3;
             this.chatTextBox.Text = "";

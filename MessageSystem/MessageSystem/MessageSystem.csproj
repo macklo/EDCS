@@ -52,7 +52,7 @@
     <Compile Include="AddUserWindow.Designer.cs">
       <DependentUpon>AddUserWindow.cs</DependentUpon>
     </Compile>
-    <Compile Include="Client.cs" />
+    <Compile Include="Sender.cs" />
     <Compile Include="Contact.cs" />
     <Compile Include="MainWindow.cs">
       <SubType>Form</SubType>
