@@ -190,6 +190,9 @@ namespace MessageSystem
             }
             else
             {
+                if (message.areYouAlive) {
+                    recievedTestMessage(message.getJsonString());
+                }
                 if (message.message != "")
                 {
                     string senderIpAddress = message.senderAddress;

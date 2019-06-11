@@ -25,7 +25,8 @@ namespace MessageSystem
             IPAddress ipAddress = ipHostInfo.AddressList[3];
             IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 11000);
             Console.WriteLine(ipAddress);
-            this.ipAddress = ipAddress.ToString();
+            //this.ipAddress = ipAddress.ToString();
+            this.ipAddress = "79.184.167.160";
 
             listener = new Socket(ipAddress.AddressFamily,
                 SocketType.Stream, ProtocolType.Tcp);
@@ -63,7 +64,7 @@ namespace MessageSystem
             */
                 data = data.Substring(0, data.IndexOf("<EOF>"));
 
-                MemoryStream ms = new MemoryStream(Encoding.ASCII.GetBytes(data));
+                MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(data));
                 DataContractJsonSerializer ds = new DataContractJsonSerializer(typeof(Message));
 
                 Message msgObject = ds.ReadObject(ms) as Message;
@@ -76,7 +77,7 @@ namespace MessageSystem
                 Console.WriteLine("Text received : {0}", data);
                 mainWindow.addMessage(msgObject);
 
-                byte[] msg = Encoding.ASCII.GetBytes(data);
+                byte[] msg = Encoding.UTF8.GetBytes(data);
 
                 //handler.Send(msg);
                 handler.Shutdown(SocketShutdown.Both);
