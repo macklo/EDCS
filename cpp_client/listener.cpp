@@ -5,7 +5,7 @@
 #include <string>
 #include <iostream>
 
-const QString Listener::globalIp =  "95.49.147.206";
+const QString Listener::globalIp =  "192.168.1.14";
 
 Listener::Listener(QMap<QString, QStringList> *msgMap, QMutex *msgMapMutex,
                    QHostAddress myIp, QJsonArray contacts):
@@ -20,7 +20,7 @@ void Listener::run(){
     server_ = new QTcpServer();
     server_->listen(QHostAddress(globalIp), socket_no);
     connect(server_, &QTcpServer::newConnection, this, &Listener::onNewConnection);
-    exec();
+    //exec();
 }
 
 void Listener::onNewConnection()
@@ -45,10 +45,10 @@ void Listener::onReadyRead()
 {
     QTcpSocket* sender = static_cast<QTcpSocket*>(QObject::sender());
     QByteArray data = sender->readAll();
-    std::string data_string = data.toStdString();
-    data = QByteArray::fromStdString(data_string.substr(0, data_string.length()-5));
+    //std::string data_string = data.toStdString();
+    //data = QByteArray::fromStdString(data_string.substr(0, data_string.length()-5));
 
-    QJsonDocument jdoc = QJsonDocument::fromBinaryData(data);
+    QJsonDocument jdoc = QJsonDocument::fromJson(data);
     QJsonObject jobj = jdoc.object();
 
     if(jobj.value("areYouAlive").toBool()){
@@ -65,8 +65,10 @@ void Listener::onReadyRead()
         toSend.insert("receiverAddress", jobj.value("senderAddress").toString());
         toSend.insert("senderAddress", globalIp);
 
-        QByteArray byteToSend = QJsonDocument(toSend).toBinaryData();
-        byteToSend.append(QByteArray::fromStdString(QString("<EOF>").toStdString()));
+        QJsonDocument jdoc;
+        jdoc.setObject(toSend);
+        QByteArray byteToSend = jdoc.toJson();
+        //byteToSend.append(QByteArray::fromStdString(QString("<EOF>").toStdString()));
 
         for (QTcpSocket* socket : sockets_) {
             if (socket != sender)

@@ -1,6 +1,6 @@
 #include "sender.h"
 
-const QString Sender::globalIp =  "192.168.2.189";
+const QString Sender::globalIp =  "192.168.1.14";
 
 Sender::Sender(QHostAddress myIp,QMap<QString, QStringList> *msgMap, QMutex *msgMapMutex):
    myIp_(myIp),msgMap_(msgMap), msgMapMutex_(msgMapMutex)
@@ -80,7 +80,7 @@ bool Sender::checkIfAlive(QHostAddress ipAdd, quint16 port){
     QJsonDocument jdoc;
     jdoc.setObject(toSend);
     QByteArray byteToSend = jdoc.toJson();
-    byteToSend.append(QByteArray::fromStdString(QString("<EOF>").toStdString()));
+    //byteToSend.append(QByteArray::fromStdString(QString("<EOF>").toStdString()));
 
     socket_.write(byteToSend);
     socket_.waitForBytesWritten(10000);

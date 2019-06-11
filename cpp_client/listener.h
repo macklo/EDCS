@@ -12,7 +12,7 @@
 #include <QThread>
 
 
-class Listener: public QThread
+class Listener: public QObject
 {
     Q_OBJECT
 
@@ -20,7 +20,7 @@ public:
     explicit Listener(QMap<QString, QStringList> *msgMap, QMutex *msgMapMutex,
              QHostAddress myIp, QJsonArray contacts);
     ~Listener();
-    void run() override;
+    void run();// override;
 
 signals:
     void msgMapChangeListener(QString ip);
