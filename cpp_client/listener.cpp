@@ -5,7 +5,7 @@
 #include <string>
 #include <iostream>
 
-const QString Listener::globalIp =  "192.168.1.14";
+const QString Listener::globalIp =  "192.168.1.10";
 
 Listener::Listener(QMap<QString, QStringList> *msgMap, QMutex *msgMapMutex,
                    QHostAddress myIp, QJsonArray contacts):
@@ -28,7 +28,7 @@ void Listener::onNewConnection()
     QTcpSocket *clientSocket = server_->nextPendingConnection();
     connect(clientSocket, SIGNAL(readyRead()), this, SLOT(onReadyRead()));
     connect(clientSocket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(onSocketStateChanged(QAbstractSocket::SocketState)));
-    std::cout<<"lol"<<std::endl;
+    std::cout<<"lol1"<<std::endl;
     sockets_.push_back(clientSocket);
 }
 
@@ -71,7 +71,7 @@ void Listener::onReadyRead()
         //byteToSend.append(QByteArray::fromStdString(QString("<EOF>").toStdString()));
 
         for (QTcpSocket* socket : sockets_) {
-            if (socket != sender)
+            if (socket == sender)
                 socket->write(byteToSend);
         }
     } else {

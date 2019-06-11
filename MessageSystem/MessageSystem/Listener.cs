@@ -25,8 +25,8 @@ namespace MessageSystem
             IPAddress ipAddress = ipHostInfo.AddressList[3];
             IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 11000);
             Console.WriteLine(ipAddress);
-            //this.ipAddress = ipAddress.ToString();
-            this.ipAddress = "79.184.167.160";
+            this.ipAddress = ipAddress.ToString();
+            //this.ipAddress = "79.184.167.160";
 
             listener = new Socket(ipAddress.AddressFamily,
                 SocketType.Stream, ProtocolType.Tcp);
