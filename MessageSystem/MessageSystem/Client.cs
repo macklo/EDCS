@@ -12,8 +12,14 @@ namespace MessageSystem
     {
         //public string message = "local<EOF>";
         public long ipAddressNumber = 0;
+        MainWindow mainWindow;
 
-        public void sendMessage(string message, string receiverIpAddress)
+        public Client(MainWindow mainWindow)
+        {
+            this.mainWindow = mainWindow;
+        }
+
+        public void sendMessage(string message, string receiverIpAddress, bool testMessage = false)
         {
             byte[] bytes = new byte[1024];
 
@@ -41,10 +47,14 @@ namespace MessageSystem
                     byte[] msg = Encoding.ASCII.GetBytes(message);
 
                     int bytesSent = sender.Send(msg);
-  
-                    int bytesRec = sender.Receive(bytes);
-                    Console.WriteLine("Echoed test = {0}",
-                        Encoding.ASCII.GetString(bytes, 0, bytesRec));
+
+                    if (testMessage)
+                    {
+                        int bytesRec = sender.Receive(bytes);
+                        Console.WriteLine("Echoed test = {0}",
+                            Encoding.ASCII.GetString(bytes, 0, bytesRec));
+                        mainWindow.recievedTestMessage(Encoding.ASCII.GetString(bytes, 0, bytesRec));
+                    }
 
                     sender.Shutdown(SocketShutdown.Both);
                     sender.Close();
@@ -57,6 +67,7 @@ namespace MessageSystem
                 catch (SocketException se)
                 {
                     Console.WriteLine("SocketException : {0}", se.ToString());
+                    mainWindow.addLocalMessage("Connection timed out", receiverIpAddress);
                 }
                 catch (Exception e)
                 {

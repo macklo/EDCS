@@ -49,30 +49,36 @@ namespace MessageSystem
                 Console.WriteLine("Waiting for a connection...");
                 Socket handler = listener.Accept();
                 data = "";
-
-                while (true)
+                int bytesRec = handler.Receive(bytes);
+                data += Encoding.ASCII.GetString(bytes, 0, bytesRec);
+                /*
+                while (bytesRec != 0)
                 {
-                    int bytesRec = handler.Receive(bytes);
-                    data += Encoding.ASCII.GetString(bytes, 0, bytesRec);
+                    
                     if (data.IndexOf("<EOF>") > -1)
                     {
                         break;
                     }
                 }
-
+            */
                 data = data.Substring(0, data.IndexOf("<EOF>"));
 
                 MemoryStream ms = new MemoryStream(Encoding.ASCII.GetBytes(data));
                 DataContractJsonSerializer ds = new DataContractJsonSerializer(typeof(Message));
 
                 Message msgObject = ds.ReadObject(ms) as Message;
+                if (msgObject.areYouAlive)
+                {
+                    Message returnMessage = new Message("", msgObject.senderAddress, ipAddress, false, true);
+                    handler.Send(Encoding.ASCII.GetBytes(returnMessage.getJsonString()));
+                }
 
                 Console.WriteLine("Text received : {0}", data);
                 mainWindow.addMessage(msgObject);
 
                 byte[] msg = Encoding.ASCII.GetBytes(data);
 
-                handler.Send(msg);
+                //handler.Send(msg);
                 handler.Shutdown(SocketShutdown.Both);
                 handler.Close();
             }
