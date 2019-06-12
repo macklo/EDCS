@@ -30,14 +30,16 @@ SOURCES += \
     ipandport.cpp \
     waitforconnnection.cpp \
     listener.cpp \
-    sender.cpp
+    sender.cpp \
+    customtextedit.cpp
 
 HEADERS += \
         mainwindow.h \
     ipandport.h \
     waitforconnnection.h \
     listener.h \
-    sender.h
+    sender.h \
+    customtextedit.h
 
 FORMS += \
         mainwindow.ui \

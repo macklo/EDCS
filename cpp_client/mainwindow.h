@@ -5,6 +5,7 @@
 #include "waitforconnnection.h"
 #include "listener.h"
 #include "sender.h"
+#include "customtextedit.h"
 
 #include <QMainWindow>
 #include <QString>
@@ -13,6 +14,8 @@
 #include <QMutex>
 #include <QFuture>
 #include <QStringList>
+#include <QListWidgetItem>
+#include <QListWidget>
 
 
 namespace Ui {
@@ -34,7 +37,8 @@ public slots:
     void checkConnectionsSlot();
     void sendMessage();
     void updateMsgWindow(QString ip);
-    void onNewConnection();
+    void changeConversation(QListWidgetItem* item);
+    void checkConnection(int idx);
 
 private:
     //QTcpServer *server_;
@@ -48,6 +52,8 @@ private:
     //QFuture<bool> future;
     QStringList connectedUsers;
     QMap<QString, QString> conversingWith;
+    CustomTextEdit *msgBox;
+
 
     QString currentIp;
 
@@ -57,9 +63,10 @@ private:
     enum  state{PRE_CONNCTED};
 
     bool readContactFile(QString filename);
-    void checkConnections();
+    void checkConnection(QString ip);
     void addUserToListWidget(QString ip);
-
+    QString getNickOfIp(QString ip);
+    QString getIpOfNick(QString nick);
 };
 
 #endif // MAINWINDOW_H

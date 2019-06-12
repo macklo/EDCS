@@ -2,16 +2,14 @@
 #include "ui_mainwindow.h"
 
 #include <QTextStream>
-#include <QJsonDocument>
 #include <QJsonArray>
 
 #include <algorithm>
 #include <iostream>
 #include <unistd.h>
 #include <QNetworkInterface>
-#include <QtConcurrent/QtConcurrent>
 #include <QTimer>
-
+#include <QColor>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -19,7 +17,14 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     connect(ui->pushButton_4, SIGNAL (released()), this, SLOT (connectionPanelPopUp()));
+    connect(ui->pushButton_3, SIGNAL (released()), this, SLOT (checkConnectionsSlot()));
     connect(ui->pushButton, SIGNAL(released()), this, SLOT (sendMessage()));
+    connect(ui->listWidget, SIGNAL(itemClicked(QListWidgetItem*)), this,
+            SLOT(changeConversation(QListWidgetItem*)));
+    ui->plainTextEdit->setReadOnly(true);
+    msgBox = new CustomTextEdit();
+    ui->verticalLayout->addWidget(msgBox);
+    connect(msgBox, SIGNAL(enterPressed()), this, SLOT(sendMessage()));
 
     readContactFile("contacts.txt");
     const QHostAddress &localhost = QHostAddress(QHostAddress::LocalHost);
@@ -34,31 +39,10 @@ MainWindow::MainWindow(QWidget *parent) :
     sender = new Sender(QHostAddress(myIp),&msgMap_, &msgMapMutex_);
     connect(sender, SIGNAL(msgMapChangeSignal(QString)), this, SLOT (updateMsgWindow(QString)));
 
-    QTimer *timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), this, SLOT(checkConnectionsSlot()));
-    timer->start(10000);
-
-    //server_ = new QTcpServer();
-
-    /*connect(server_, SIGNAL(newConnection()), this, SLOT(onNewConnection()));
-    bool res  = server_->listen(QHostAddress::Any, 11000);
-    if(!res){
-        std::cout<<"dupa"<<std::endl;
-    }*/
     listener = new Listener(&msgMap_, &msgMapMutex_, myIp, contacts);
     connect(listener, SIGNAL(msgMapChangeListener(QString)), this, SLOT (updateMsgWindow(QString)));
     listener->run();
 }
-
-void MainWindow::onNewConnection()
-{
-    QTcpSocket *clientSocket = server_->nextPendingConnection();
-    connect(clientSocket, SIGNAL(readyRead()), this, SLOT(onReadyRead()));
-    connect(clientSocket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(onSocketStateChanged(QAbstractSocket::SocketState)));
-    std::cout<<"lol"<<std::endl;
-    //sockets_.push_back(clientSocket);
-}
-
 
 MainWindow::~MainWindow()
 {
@@ -67,50 +51,99 @@ MainWindow::~MainWindow()
     delete listener;
 }
 
-void MainWindow::sendMessage(){
-    if(!currentIp.isEmpty()){
+void MainWindow::changeConversation(QListWidgetItem* item){
+    QString ip = getIpOfNick(item->text());
+    if(!ip.compare("NA")){
+        return;
+    } else if(!ip.compare(currentIp)){
         return;
     }
-    QString msg = ui->plainTextEdit_2->toPlainText();
+    currentIp = ip;
+    ui->plainTextEdit->clear();
+    ui->plainTextEdit->update();
+    for(QString msg: msgMap_[ip]){
+        ui->plainTextEdit->insertPlainText(msg+"\n");
+    }
+    return;
+}
+
+void MainWindow::sendMessage(){
+    if(currentIp.isEmpty()){
+        msgBox->clear();
+        return;
+    }
+    QString msg = msgBox->toPlainText();
     bool isAlert = ui->checkBox->isChecked();
-    sender->sendMsgTo(msg, QHostAddress(currentIp), port, isAlert);
-    //QtConcurrent::run((Sender::sendMsgTo), sender, msg,QHostAddress(currentIp), port, isAlert);
+    ui->checkBox->setChecked(false);
+    msgBox->clear();
+    bool res = sender->sendMsgTo(msg, QHostAddress(currentIp), port, isAlert);
+    if(!res)
+        checkConnection(currentIp);
 }
 
 void MainWindow::updateMsgWindow(QString ip){
     if(ip != currentIp){
-        return;
+        if(!msgMap_[ip].size()){
+            currentIp=ip;
+            connectedUsers.append(ip);
+            conversingWith.insert(ip,getNickOfIp(ip));
+            ui->listWidget->clear();
+            for(QString key: conversingWith.keys()){
+                ui->listWidget->addItem(conversingWith[key]);
+            }
+        } else{
+            return;
+        }
     } else{
-        ui->plainTextEdit->insertPlainText("\n"+msgMap_[ip].last());
+        if(msgMap_[ip].last().contains("<A!>")){
+            ui->plainTextEdit->setTextBackgroundColor(QColor(255, 176,0));
+        } else{
+            ui->plainTextEdit->setTextBackgroundColor(QColor(255, 255,255));
+        }
+        ui->plainTextEdit->insertPlainText(msgMap_[ip].last()+"\n");
     }
 }
 
 void MainWindow::checkConnectionsSlot(){
-    //checkConnections();
+    IpAndPort *ipWindow = new IpAndPort(contacts);
+    ipWindow -> show();
+    connect(ipWindow, SIGNAL(userChosen(int)), this, SLOT(checkConnection(int)));
 }
 
-void MainWindow::checkConnections(){
+void MainWindow::checkConnection(int idx){
+    QString ip(contacts.at(idx).toObject().value("ipAddress").toString());
+    checkConnection(ip);
+}
+
+void MainWindow::checkConnection(QString ip){
     bool changed = false;
-    for(QString key: conversingWith.keys()){
-        QString ip = conversingWith[key];
         if(!sender->checkIfAlive(QHostAddress(ip),port)){
             QStringList::iterator it = std::find(connectedUsers.begin(),
-                                                    connectedUsers.end(), key);
+                                                    connectedUsers.end(), ip);
             if(it != connectedUsers.end()){
                 connectedUsers.erase(it);
-                conversingWith[key].prepend("<DISCONECTED>");
+                conversingWith[ip].prepend("<DISCONECTED>");
                 changed = true;
+            } else {
+                WaitForConnnection *wcw = new WaitForConnnection();
+                wcw->showConnectionFailMsg();
+                wcw->show();
             }
         } else {
-            QStringList::iterator it = std::find(connectedUsers.begin(),
-                                                    connectedUsers.end(), key);
-            if(it == connectedUsers.end()){
+            QStringList::iterator it = conversingWith.keys().end();
+            if(!conversingWith.empty()){
+                it = std::find(conversingWith.keys().begin(), conversingWith.keys().end(), ip);
+            }
+            if(it != conversingWith.keys().end()){
                 connectedUsers.append(ip);
-                conversingWith[key].remove("<DISCONECTED>", Qt::CaseInsensitive);
+                conversingWith[ip].remove("<DISCONECTED>", Qt::CaseInsensitive);
                 changed = true;
+            } else {
+                WaitForConnnection *wcw = new WaitForConnnection();
+                wcw->showConnectionOkMsg();
+                wcw->show();
             }
         }
-    }
     if(changed){
         ui->listWidget->clear();
         for(QString key: conversingWith.keys()){
@@ -140,22 +173,20 @@ void MainWindow::connectionPanelPopUp(){
 bool MainWindow::connectToUser(int idx){
 
     QHostAddress ip(contacts.at(idx).toObject().value("ipAddress").toString());
-    //WaitForConnnection *wcw = new WaitForConnnection();
-    //wcw->show();
+    WaitForConnnection *wcw = new WaitForConnnection();
+    wcw->show();
     if(!sender->checkIfAlive(QHostAddress(ip), port)){
-        //wcw->showConnectionFailMsg();
-        usleep(350);
-        //wcw->close();
+        wcw->showConnectionFailMsg();
         return false;
     } else {
         QString ip = contacts.at(idx).toObject().value("ipAddress").toString();
         if(connectedUsers.contains(ip)){
-           // wcw->close();
+            wcw->close();
             return true;
         }
         connectedUsers.append(ip);
         if(msgMap_.contains(ip)){
-           // wcw->close();
+            wcw->close();
             return true;
         }
         msgMapMutex_.lock();
@@ -163,7 +194,7 @@ bool MainWindow::connectToUser(int idx){
         msgMapMutex_.unlock();
         addUserToListWidget(ip);
     }
-    //wcw->close();
+    wcw->close();
     return true;
 }
 
@@ -186,4 +217,24 @@ bool MainWindow::readContactFile(QString filename){
 }
 
 
+QString MainWindow::getNickOfIp(QString ip){
+    QString nick = "NA";
+    for(QJsonValue jo : contacts){
+        if(!jo.toObject().value("ipAddress").toString().compare(ip)){
+            nick = jo.toObject().value("name").toString();
+            break;
+        }
+    }
+    return nick;
+}
 
+QString MainWindow::getIpOfNick(QString nick){
+    QString ip = "NA";
+    for(QJsonValue jo : contacts){
+        if(!jo.toObject().value("name").toString().compare(nick)){
+            ip = jo.toObject().value("ipAddress").toString();
+            break;
+        }
+    }
+    return ip;
+}

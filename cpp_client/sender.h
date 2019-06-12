@@ -29,8 +29,6 @@ private:
     QMutex *msgMapMutex_;
     bool connectTo(QHostAddress ipAdd, quint16 port);
     bool disconectFrom();
-
-    static const QString globalIp;
 };
 
 #endif // SENDER_H

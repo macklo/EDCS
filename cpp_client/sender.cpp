@@ -1,7 +1,5 @@
 #include "sender.h"
 
-const QString Sender::globalIp =  "192.168.1.14";
-
 Sender::Sender(QHostAddress myIp,QMap<QString, QStringList> *msgMap, QMutex *msgMapMutex):
    myIp_(myIp),msgMap_(msgMap), msgMapMutex_(msgMapMutex)
 {
@@ -20,8 +18,12 @@ bool Sender::disconectFrom(){
     if(socket_.state()!=QTcpSocket::ConnectedState){
         return false;
     }
+    bool result = true;
     socket_.disconnectFromHost();
-    return socket_.waitForDisconnected();
+    if(socket_.state()==QTcpSocket::ConnectedState){
+        result = socket_.waitForDisconnected();
+    }
+    return result;
 }
 
 bool Sender::sendMsgTo(QString msg, QHostAddress ipAdd, quint16 port, bool isAlert){
@@ -38,10 +40,11 @@ bool Sender::sendMsgTo(QString msg, QHostAddress ipAdd, quint16 port, bool isAle
     toSend.insert("isAlert", isAlert);
     toSend.insert("message", msg);
     toSend.insert("receiverAddress", ipAdd.toString());
-    toSend.insert("senderAddress", globalIp);
+    toSend.insert("senderAddress", myIp_.toString());
 
-    QByteArray byteToSend = QJsonDocument(toSend).toBinaryData();
-    byteToSend.append(QByteArray::fromStdString(QString("<EOF>").toStdString()));
+    QJsonDocument jdoc;
+    jdoc.setObject(toSend);
+    QByteArray byteToSend = jdoc.toJson();
 
     socket_.write(byteToSend);
     socket_.waitForBytesWritten();
@@ -52,12 +55,12 @@ bool Sender::sendMsgTo(QString msg, QHostAddress ipAdd, quint16 port, bool isAle
     }
 
     msgMapMutex_->lock();
-    (*msgMap_)[ipAdd.toString()].append(nick+msg);
+    (*msgMap_)[ipAdd.toString()].append(nick+"\t"+msg);
     msgMapMutex_->unlock();
 
     emit msgMapChangeSignal(ipAdd.toString());
 
-    while(!disconectFrom()){}
+    disconectFrom();
     socketMutex_.unlock();
     return true;
 }
@@ -75,12 +78,11 @@ bool Sender::checkIfAlive(QHostAddress ipAdd, quint16 port){
     toSend.insert("isAlert", false);
     toSend.insert("message", "");
     toSend.insert("receiverAddress", ipAdd.toString());
-    toSend.insert("senderAddress", globalIp);
+    toSend.insert("senderAddress", myIp_.toString());
 
     QJsonDocument jdoc;
     jdoc.setObject(toSend);
     QByteArray byteToSend = jdoc.toJson();
-    //byteToSend.append(QByteArray::fromStdString(QString("<EOF>").toStdString()));
 
     socket_.write(byteToSend);
     socket_.waitForBytesWritten(10000);
@@ -91,9 +93,6 @@ bool Sender::checkIfAlive(QHostAddress ipAdd, quint16 port){
         return false;
     }
     QByteArray data = socket_.readAll();
-    //std::string data_string = data.toStdString();
-    //data_string = data_string.substr(0, data_string.length()-4);
-    //data = QString::fromStdString(data_string).toLocal8Bit();
     QJsonDocument json_doc = QJsonDocument::fromJson(data);
     QJsonObject recieved = json_doc.object();
 

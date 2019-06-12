@@ -15,6 +15,7 @@ public:
     explicit WaitForConnnection(QWidget *parent = 0);
     ~WaitForConnnection();
     void showConnectionFailMsg();
+    void showConnectionOkMsg();
 
 private:
     Ui::WaitForConnnection *ui;
